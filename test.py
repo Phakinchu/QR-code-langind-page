@@ -43,7 +43,7 @@ def generate_qr_code(data, icon_path, output_path):
     result.save(output_path, format="PNG")
 
 def main():
-    data_to_encode = "https://www.youtube.com"
+    data_to_encode = "https://phakinchu.github.io/QR-code-langind-page/QR/QR1/"
     custom_icon_path = r"J:\python\qrcode\QR-code-langind-page\CI_icon.png"
     output_image_path = r"J:\python\qrcode\QR-code-langind-page\output\output.png"
 
