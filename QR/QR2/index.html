@@ -1,10 +1,93 @@
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <link rel="stylesheet" href="../../style.css">
+    <title>QR Code Data</title>
 </head>
 <body>
-    <div>TF IM I qr1</div>
+    <section>
+        <!-- Content will be dynamically inserted here -->
+    </section>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            // Fetch data from the published Google Sheets URL using the fetch API
+            fetch('https://docs.google.com/spreadsheets/d/e/2PACX-1vQ_o-4pIE6HUsjRJfRFUNFhUjOeWvO_sfEZVLFFQglkJZCG3AT6WE2JiAVU8WiSLnCkfM3ZYn1ee34p/pub?gid=0&single=true&output=csv')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.text();
+                })
+                .then(data => {
+                    // Get the data of the specified row
+                    var rowData = getSpecificRowData(data,'FG10E0TB20903303'); // Specify the serial number to filter
+
+                    // Clean up headers and values
+                    for (var key in rowData) {
+                        var cleanedKey = key.trim().replace(/\W/g, ''); // Remove non-alphanumeric characters
+                        rowData[cleanedKey] = rowData[key];
+                        if (cleanedKey !== key) {
+                            delete rowData[key];
+                        }
+                    }
+
+                    // Use the rowData variable to perform additional tasks
+                    console.log(rowData);
+
+                    // Example 1: Accessing Individual Values
+                    var specificSerialNumber = rowData["SerialNumber"];
+                    var specificSOrder = rowData["SOOrder"];
+                    var specificExpDate = rowData["ExpDate"];
+                    var specificContractInfo = rowData["ContractInfo"];
+
+                    console.log("Serial Number:", specificSerialNumber);
+                    console.log("S/O Order:", specificSOrder);
+                    console.log("Exp Date:", specificExpDate);
+                    console.log("Contract Info:", specificContractInfo);
+
+                    // Example 2: Displaying Data in HTML
+                    var htmlContent = '<div class="sec">';
+                    htmlContent += '<img src="../../CI_icon.png" alt="Girl in a jacket" style="width:50px;height:50px;">'
+                    htmlContent += '<p>Serial Number: ' + specificSerialNumber + '</p>';
+                    htmlContent += '<p>S/O Order: ' + specificSOrder + '</p>';
+                    htmlContent += '<p>Exp Date: ' + specificExpDate + '</p>';
+                    htmlContent += '<p>Contract Info: ' + specificContractInfo + '</p>';
+                    htmlContent += '</div>';
+
+                    // Set the generated content to the section
+                    document.querySelector('section').innerHTML = htmlContent;
+                })
+                .catch(error => {
+                    console.error('Error fetching data:', error);
+                });
+        });
+
+        function getSpecificRowData(data, targetSerialNumber) {
+            // Assuming data is a CSV string
+            var rows = data.split('\n');
+            var headers = rows[0].split(',');
+
+            var rowData = {};
+
+            // Find and store the data of the row with the specified serial number
+            for (var i = 1; i < rows.length; i++) {
+                var columns = rows[i].split(',');
+
+                // Check if the serial number matches the target
+                if (columns[0] == targetSerialNumber) {
+                    // Store data in the rowData object
+                    for (var j = 0; j < headers.length; j++) {
+                        rowData[headers[j].trim()] = columns[j];
+                    }
+                    break; // Stop after finding the matching row
+                }
+            }
+
+            return rowData;
+        }
+    </script>
 </body>
 </html>

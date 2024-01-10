@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../../style.css">
     <title>QR Code Data</title>
 </head>
 <body>
-    <div id="data-container">
+    <section>
         <!-- Content will be dynamically inserted here -->
-        <p>how to show data here</p>
-    </div>
+    </section>
 
     <script>
         document.addEventListener("DOMContentLoaded", function () {
@@ -22,56 +22,71 @@
                     return response.text();
                 })
                 .then(data => {
-                    // Handle and display the data on the page
-                    displayDataOnPage(data);
+                    // Get the data of the specified row
+                    var rowData = getSpecificRowData(data,'FG10E0TB21900043'); // Specify the serial number to filter
+
+                    // Clean up headers and values
+                    for (var key in rowData) {
+                        var cleanedKey = key.trim().replace(/\W/g, ''); // Remove non-alphanumeric characters
+                        rowData[cleanedKey] = rowData[key];
+                        if (cleanedKey !== key) {
+                            delete rowData[key];
+                        }
+                    }
+
+                    // Use the rowData variable to perform additional tasks
+                    console.log(rowData);
+
+                    // Example 1: Accessing Individual Values
+                    var specificSerialNumber = rowData["SerialNumber"];
+                    var specificSOrder = rowData["SOOrder"];
+                    var specificExpDate = rowData["ExpDate"];
+                    var specificContractInfo = rowData["ContractInfo"];
+
+                    console.log("Serial Number:", specificSerialNumber);
+                    console.log("S/O Order:", specificSOrder);
+                    console.log("Exp Date:", specificExpDate);
+                    console.log("Contract Info:", specificContractInfo);
+
+                    // Example 2: Displaying Data in HTML
+                    var htmlContent = '<div class="sec">';
+                    htmlContent += '<img src="../../CI_icon.png" alt="Girl in a jacket" style="width:50px;height:50px;">'
+                    htmlContent += '<p>Serial Number: ' + specificSerialNumber + '</p>';
+                    htmlContent += '<p>S/O Order: ' + specificSOrder + '</p>';
+                    htmlContent += '<p>Exp Date: ' + specificExpDate + '</p>';
+                    htmlContent += '<p>Contract Info: ' + specificContractInfo + '</p>';
+                    htmlContent += '</div>';
+
+                    // Set the generated content to the section
+                    document.querySelector('section').innerHTML = htmlContent;
                 })
                 .catch(error => {
                     console.error('Error fetching data:', error);
                 });
         });
 
-        function displayDataOnPage(data) {
+        function getSpecificRowData(data, targetSerialNumber) {
+            // Assuming data is a CSV string
             var rows = data.split('\n');
             var headers = rows[0].split(',');
-            var content = '<table><thead><tr>';
 
-            // Create table headers
-            headers.forEach(function (header) {
-                content += '<th>' + header + '</th>';
-            });
+            var rowData = {};
 
-            content += '</tr></thead><tbody>';
-
-            // Loop through each row starting from index 1 to skip headers
+            // Find and store the data of the row with the specified serial number
             for (var i = 1; i < rows.length; i++) {
                 var columns = rows[i].split(',');
-                content += '<tr>';
 
-                // Create table cells
-                columns.forEach(function (column) {
-                    content += '<td>' + column + '</td>';
-                });
-
-                content += '</tr>';
+                // Check if the serial number matches the target
+                if (columns[0] == targetSerialNumber) {
+                    // Store data in the rowData object
+                    for (var j = 0; j < headers.length; j++) {
+                        rowData[headers[j].trim()] = columns[j];
+                    }
+                    break; // Stop after finding the matching row
+                }
             }
 
-            content += '</tbody></table>';
-
-            ////////////////////////////////////////////////////////////
-            // Assuming data is a CSV string
-            // var rows = data.split('\n');
-            // var content = '<p>';
-
-            // // Loop through each row and append it to the content
-            // rows.forEach(function (row) {
-            //     var columns = row.split(',');
-            //     content += '<h1>' + columns.join('</h1><h1>') + '</h1>';
-            // });
-
-            // content += '</p>';
-            ////////////////////////////////////////////////////////////
-            // Set the generated content to the div with id 'data-container'
-            document.getElementById('data-container').innerHTML = content;
+            return rowData;
         }
     </script>
 </body>
