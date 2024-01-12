@@ -21,7 +21,7 @@ def generate_qr_code(data, icon_path, output_path):
     icon = Image.open(icon_path).convert("RGBA")
 
     # Resize the icon to fit the QR code
-    icon = icon.resize((qr_image.size[0] // 4, qr_image.size[1] // 4), Image.ANTIALIAS)
+    icon = icon.resize((qr_image.size[0] // 4, qr_image.size[1] // 4), Image.LANCZOS)
 
     # Set the alpha (transparency) value for the icon
     alpha = 150  # Adjust this value (0 to 255) to control the transparency
@@ -43,7 +43,7 @@ def generate_qr_code(data, icon_path, output_path):
     result.save(output_path, format="PNG")
 
 def main():
-    data_to_encode = "https://phakinchu.github.io/QR-code-langind-page/QR/QR2/"
+    data_to_encode = "https://sites.google.com/view/phase2pea60f1"
     custom_icon_path = r"J:\python\qrcode\QR-code-langind-page\CI_icon.png"
     output_image_path = r"J:\python\qrcode\QR-code-langind-page\output\output.png"
 
