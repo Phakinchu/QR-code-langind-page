@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/@picocss/pico@1/css/pico.min.css"
+    />
+    <title>Product Information Card</title>
+    <style>
+      .card {
+        background-color: #fff;
+        border: 2px solid #ddd;
+        border-radius: 10px;
+        padding: 1rem;
+        margin: 1rem 0;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+      }
+      .card-image {
+        flex: 1; /* Adjust this value as needed */
+        padding: 1rem;
+      }
+      .card-data {
+        flex: 3; /* Adjust this value as needed */
+        padding: 1rem;
+        text-align: left;
+      }
+      @media (max-width: 600px) {
+        .card {
+          flex-direction: column;
+        }
+        .card-image,
+        .card-data {
+          flex: none;
+          width: 100%;
+          text-align: center;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="container">
+      <section class="card">
+        <div class="card-image">
+          <img
+            src="https://assets-global.website-files.com/61d8085eb93e725ca6f46af3/64eb8bd1c3c6540c9b8a0a0f_Logo%20Gold%20(2)%2022.png"
+            alt="Company Logo"
+          />
+        </div>
+        <div class="card-data">
+          <!-- The card content will be populated by the script below -->
+        </div>
+      </section>
+    </main>
+    <script>
+      function getQueryParameters(url) {
+        const queryString = url.split('?')[1];
+        const params = new URLSearchParams(queryString);
+        return params;
+      }
+
+      document.addEventListener("DOMContentLoaded", function () {
+        // Retrieve serial number from URL
+        const url = window.location.href;
+        const serialNumber = getQueryParameters(url).get('serialNumber');
+        console.log('Serial Number:', serialNumber);
+            
+        // Rest of your code goes here
+        fetchAndPopulateData(serialNumber);
+      });
+
+      function fetchAndPopulateData(serialNumber) {
+        // Fetch data from Google Sheet with serial number
+        fetch(
+          `https://docs.google.com/spreadsheets/d/e/2PACX-1vQ_o-4pIE6HUsjRJfRFUNFhUjOeWvO_sfEZVLFFQglkJZCG3AT6WE2JiAVU8WiSLnCkfM3ZYn1ee34p/pub?gid=0&single=true&output=csv&serialNumber=${serialNumber}`
+        )
+          .then((response) => {
+            if (!response.ok) {
+              throw new Error("Network response was not ok");
+            }
+            return response.text();
+          })
+          .then((data) => {
+            var rowData = getSpecificRowData(data, serialNumber);
+
+            for (var key in rowData) {
+              var cleanedKey = key.trim().replace(/\W/g, "");
+              rowData[cleanedKey] = rowData[key];
+              if (cleanedKey !== key) {
+                delete rowData[key];
+              }
+            }
+            console.log("Data is:", rowData);
+
+            var htmlContent = "<div>";
+            htmlContent +=
+              "<p>Serial Number: " + rowData["SerialNumber"] + "</p>";
+            htmlContent += "<p>S/O Order: " + rowData["SOrrder"] + "</p>";
+            htmlContent += "<p>Device Name: " + rowData["deviceName"] + "</p>";
+            htmlContent +=
+              "<p>Device Transfer Date: " +
+              rowData["deviceTranferDate"] +
+              "</p>";
+            htmlContent +=
+              "<p>Warranty Information: " +
+              rowData["warrantyInformation"] +
+              "</p>";
+            htmlContent += "<p>Contract Info: " + rowData["ContractInfo"] + "</p>";
+            htmlContent += "</div>";
+
+            document.querySelector(".card-data").innerHTML = htmlContent;
+            console.log("Data fetch success:", data);
+          })
+          .catch((error) => {
+            console.error("Error fetching data:", error);
+          });
+      }
+
+      function getSpecificRowData(data, targetSerialNumber) {
+        var rows = data.split("\n");
+        var headers = rows[0].split(",");
+
+        var rowData = {};
+
+        for (var i = 1; i < rows.length; i++) {
+          var columns = rows[i].split(",");
+
+          if (columns[0] == targetSerialNumber) {
+            for (var j = 0; j < headers.length; j++) {
+              rowData[headers[j].trim()] = columns[j];
+            }
+            break;
+          }
+        }
+
+        return rowData;
+      }
+    </script>
+  </body>
+</html>

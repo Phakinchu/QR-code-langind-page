@@ -43,7 +43,7 @@ def generate_qr_code(data, icon_path, output_path):
     result.save(output_path, format="PNG")
 
 def main():
-    data_to_encode = "https://sites.google.com/view/phase2pea60f1"
+    data_to_encode = "https://sites.google.com/view/peaphase2/cards?serialNumber=FG10E0TB21900043"
     custom_icon_path = r"J:\python\qrcode\QR-code-langind-page\CI_icon.png"
     output_image_path = r"J:\python\qrcode\QR-code-langind-page\output\output.png"
 
