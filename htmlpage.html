@@ -10,7 +10,7 @@
     <title>Product Information Card</title>
     <style>
       .card {
-        background-color: #fff;
+        background-color: rgba(255, 255, 255, 0.9);
         border: 2px solid #ddd;
         border-radius: 10px;
         padding: 1rem;
@@ -29,6 +29,24 @@
         padding: 1rem;
         text-align: left;
       }
+      .card-data,
+      .card-data p {
+        color: black !important;
+      }
+
+      .data-field {
+        transition: background-color 0.3s ease;
+      }
+      .data-field:hover {
+        background: linear-gradient(
+          135deg,
+          rgba(255, 179, 186, 0.7) 10%,
+          /* Pastel red with transparency */ rgba(255, 223, 186, 0.1) 30%,
+          /* Blended pastel red-yellow */ rgba(255, 179, 186, 0.1) 90%
+        ); /* Pastel red with transparency */
+        border-radius: 10px;
+      }
+
       @media (max-width: 600px) {
         .card {
           flex-direction: column;
@@ -37,6 +55,7 @@
         .card-data {
           flex: none;
           width: 100%;
+
           text-align: center;
         }
       }
@@ -57,8 +76,19 @@
       </section>
     </main>
     <script>
+      function copyToClipboard(text) {
+        navigator.clipboard.writeText(text).then(
+          function () {
+            console.log("Copying to clipboard was successful!");
+          },
+          function (err) {
+            console.error("Could not copy text: ", err);
+          }
+        );
+      }
+
       function getQueryParameters(url) {
-        const queryString = url.split('?')[1];
+        const queryString = url.split("?")[1];
         const params = new URLSearchParams(queryString);
         return params;
       }
@@ -66,9 +96,9 @@
       document.addEventListener("DOMContentLoaded", function () {
         // Retrieve serial number from URL
         const url = window.location.href;
-        const serialNumber = getQueryParameters(url).get('serialNumber');
-        console.log('Serial Number:', serialNumber);
-            
+        const serialNumber = getQueryParameters(url).get("serialNumber");
+        console.log("Serial Number:", serialNumber);
+
         // Rest of your code goes here
         fetchAndPopulateData(serialNumber);
       });
@@ -76,7 +106,7 @@
       function fetchAndPopulateData(serialNumber) {
         // Fetch data from Google Sheet with serial number
         fetch(
-          `https://docs.google.com/spreadsheets/d/e/2PACX-1vQ_o-4pIE6HUsjRJfRFUNFhUjOeWvO_sfEZVLFFQglkJZCG3AT6WE2JiAVU8WiSLnCkfM3ZYn1ee34p/pub?gid=0&single=true&output=csv&serialNumber=${serialNumber}`
+          `https://docs.google.com/spreadsheets/d/e/2PACX-1vQQlnfk8KFpbODHFMfYUy0dIkzs7koferc5yvZPJEErOTd2ZG43ynKlrd6Tb4ijHyQgPRcVoEoc0J_h/pub?gid=0&single=true&output=csv&serialNumber=${serialNumber}`
         )
           .then((response) => {
             if (!response.ok) {
@@ -98,18 +128,42 @@
 
             var htmlContent = "<div>";
             htmlContent +=
-              "<p>Serial Number: " + rowData["SerialNumber"] + "</p>";
-            htmlContent += "<p>S/O Order: " + rowData["SOrrder"] + "</p>";
-            htmlContent += "<p>Device Name: " + rowData["deviceName"] + "</p>";
+              '<div class="data-field" onclick="copyToClipboard(\'' +
+              rowData["deviceName"].replace(/'/g, "\\'") +
+              "')\"><p>Device Name: " +
+              rowData["deviceName"] +
+              "</p></div>";
             htmlContent +=
-              "<p>Device Transfer Date: " +
+              '<div class="data-field" onclick="copyToClipboard(\'' +
+              rowData["SerialNumber"].replace(/'/g, "\\'") +
+              "')\"><p>Serial Number: " +
+              rowData["SerialNumber"] +
+              "</p></div>";
+            htmlContent +=
+              '<div class="data-field" onclick="copyToClipboard(\'' +
+              rowData["SOrrder"].replace(/'/g, "\\'") +
+              "')\"><p>S/O Order: " +
+              rowData["SOrrder"] +
+              "</p></div>";
+
+            htmlContent +=
+              '<div class="data-field" onclick="copyToClipboard(\'' +
+              rowData["deviceTranferDate"].replace(/'/g, "\\'") +
+              "')\"><p>Device Transfer Date: " +
               rowData["deviceTranferDate"] +
-              "</p>";
+              "</p></div>";
             htmlContent +=
-              "<p>Warranty Information: " +
+              '<div class="data-field" onclick="copyToClipboard(\'' +
+              rowData["warrantyInformation"].replace(/'/g, "\\'") +
+              "')\"><p>Warranty Information: " +
               rowData["warrantyInformation"] +
-              "</p>";
-            htmlContent += "<p>Contract Info: " + rowData["ContractInfo"] + "</p>";
+              "</p></div>";
+            htmlContent +=
+              '<div class="data-field" onclick="copyToClipboard(\'' +
+              rowData["ContractInfo"].replace(/'/g, "\\'") +
+              "')\"><p>Contract Info: " +
+              rowData["ContractInfo"] +
+              "</p></div>";
             htmlContent += "</div>";
 
             document.querySelector(".card-data").innerHTML = htmlContent;
@@ -118,6 +172,16 @@
           .catch((error) => {
             console.error("Error fetching data:", error);
           });
+      }
+      function copyToClipboard(text) {
+        navigator.clipboard.writeText(text).then(
+          function () {
+            console.log("Copying to clipboard was successful!");
+          },
+          function (err) {
+            console.error("Could not copy text: ", err);
+          }
+        );
       }
 
       function getSpecificRowData(data, targetSerialNumber) {
